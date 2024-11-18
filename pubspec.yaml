@@ -38,6 +38,7 @@ dependencies:
   firebase_auth: ^5.3.1
   appwrite: ^13.0.0
   sqflite: ^2.4.1
+  carousel_slider: ^5.0.0
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +63,8 @@ flutter:
   uses-material-design: true
   assets:
     - images/nike sign-in background.jpg
+    - images/Foot Measurement Diagram.jpg
+    - images/foot measuring.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

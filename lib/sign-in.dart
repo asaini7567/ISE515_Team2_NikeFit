@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'auth.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class SignInScreen extends StatefulWidget {
 class _SignInState extends State<SignInScreen> {
   String? errorMessage = '';
   bool isLogin = true;
+  bool _isPasswordVisible = false; // Password visibility toggle
 
   final TextEditingController _controllerEmail = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
@@ -37,7 +39,7 @@ class _SignInState extends State<SignInScreen> {
       );
     } on FirebaseAuthException catch (e) {
       setState(() {
-        //errorMessage = e.message;
+        errorMessage = e.message;
       });
     }
   }
@@ -51,11 +53,28 @@ class _SignInState extends State<SignInScreen> {
 
   Widget _entryField(
     String title,
-    TextEditingController controller,
-  ) {
+    TextEditingController controller, {
+    bool isPassword = false,
+  }) {
     return TextField(
       controller: controller,
-      decoration: InputDecoration(labelText: title),
+      obscureText: isPassword ? !_isPasswordVisible : false,
+      decoration: InputDecoration(
+        labelText: title,
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: Colors.grey,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isPasswordVisible = !_isPasswordVisible;
+                  });
+                },
+              )
+            : null,
+      ),
     );
   }
 
@@ -85,36 +104,85 @@ class _SignInState extends State<SignInScreen> {
           isLogin = !isLogin;
         });
       },
-      child: Text(isLogin ? 'Sign Up' : 'Sign In'),
+      child: Text(
+        isLogin ? 'Sign Up' : 'Sign In',
+        style: const TextStyle(color: Colors.blue),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.blue,
-          title: _title(),
-          centerTitle: true,
-          automaticallyImplyLeading: false,
-        ),
-        body: Container(
-          height: double.infinity,
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              _entryField('Email', _controllerEmail),
-              _entryField('Password', _controllerPassword),
-              _errorMessage(),
-              _submitButton(),
-              _signinOrSignUpButton(),
-            ],
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        title: _title(),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+      ),
+      backgroundColor: Colors.white,
+      body: Row(
+        children: [
+          // Left side: Form fields
+          Expanded(
+            flex: 2,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  _entryField('Email', _controllerEmail),
+                  const SizedBox(height: 16),
+                  _entryField('Password', _controllerPassword,
+                      isPassword: true),
+                  const SizedBox(height: 16),
+                  _errorMessage(),
+                  const SizedBox(height: 16),
+                  _submitButton(),
+                  _signinOrSignUpButton(),
+                ],
+              ),
+            ),
           ),
-        ));
+          // Right side: Image carousel
+          Expanded(
+            flex: 3,
+            child: CarouselSlider(
+              options: CarouselOptions(
+                height: double.infinity, // Stretch carousel vertically
+                autoPlay: true,
+                autoPlayInterval: const Duration(seconds: 3),
+                viewportFraction: 1.0,
+                enlargeCenterPage: false,
+                scrollDirection: Axis.vertical,
+              ),
+              items: [
+                'images/Foot Measurement Diagram.jpg',
+                'images/foot measuring.jpg',
+              ].map((imagePath) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: AssetImage(imagePath),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
   }
+}
 
   /*
   @override
@@ -214,4 +282,3 @@ class _SignInState extends State<SignInScreen> {
     );
   }
   */
-}
