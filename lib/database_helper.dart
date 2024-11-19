@@ -1,140 +1,174 @@
-import 'dart:async';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+import 'package:hive/hive.dart';
+import 'measurement.dart';
+import 'package:flutter/foundation.dart';
 
 class DatabaseHelper {
-  static final DatabaseHelper instance = DatabaseHelper._init();
-  static Database? _database;
+  // Singleton pattern
+  static final DatabaseHelper instance = DatabaseHelper._internal();
 
-  DatabaseHelper._init();
+  static final _measurementBox = Hive.box<Measurement>('measurements');
+  static final _searchBox = Hive.box<Measurement>('previous_searches');
 
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDB('local_database.db');
-    return _database!;
+  static late Box<Measurement> _searchedBox;
+
+  // Private constructor
+  DatabaseHelper._internal() {
+    _initializeHardCodedData();
   }
 
-  Future<Database> _initDB(String filePath) async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, filePath);
-
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
+  static Future<void> init() async {
+    // Open the box for storing searched shoes
+    _searchedBox = await Hive.openBox<Measurement>('searched_shoes');
   }
 
-  Future _createDB(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE measurements (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        category TEXT,
-        shoe_size REAL,
-        foot_length REAL,
-        arch_length REAL,
-        foot_width_heel REAL,
-        heel_to_toe_diagonal REAL,
-        toe_box_width REAL,
-        foot_width_forefoot REAL
-      )
-    ''');
+  // Initialize hard-coded data if the box is empty
+  Future<void> _initializeHardCodedData() async {
+    if (_measurementBox.isEmpty) {
+      final hardCodedData = [
+        Measurement(
+          shoeName: 'Nike Dunk Low Retro',
+          category: 'Casual',
+          shoeSize: 8.5,
+          footLength: 28,
+          footWidthHeel: 7,
+          footWidthForefoot: 9,
+          toeBoxWidth: 10,
+          archLength: 18,
+          heelToToeDiagonal: 27.5,
+          gender: 'Men', // Add gender to hard-coded data
+        ),
+        Measurement(
+          shoeName: 'Nike Air Force 1',
+          category: 'Casual',
+          shoeSize: 8.5,
+          footLength: 28.2,
+          footWidthHeel: 7.7,
+          footWidthForefoot: 8.9,
+          toeBoxWidth: 10.1,
+          archLength: 20.3,
+          heelToToeDiagonal: 28.6,
+          gender: 'Women', // Add gender to hard-coded data
+        ),
+        Measurement(
+          shoeName: 'Nike Air Jordan 1',
+          category: 'Sports',
+          shoeSize: 8.5,
+          footLength: 27,
+          footWidthHeel: 6.4,
+          footWidthForefoot: 8.5,
+          toeBoxWidth: 9.5,
+          archLength: 15.5,
+          heelToToeDiagonal: 26.7,
+          gender: 'Men', // Add gender to hard-coded data
+        ),
+        Measurement(
+          shoeName: 'Nike Flyknit Air Max Multi-Color',
+          category: 'Running',
+          shoeSize: 8.5,
+          footLength: 26.7,
+          footWidthHeel: 8.9,
+          footWidthForefoot: 8.6,
+          toeBoxWidth: 7.6,
+          archLength: 17.8,
+          heelToToeDiagonal: 25.4,
+          gender: 'Women', // Add gender to hard-coded data
+        ),
+        Measurement(
+          shoeName: 'Nike React Infinity Run Flyknit',
+          category: 'Running',
+          shoeSize: 9,
+          footLength: 27.9,
+          footWidthHeel: 5.7,
+          footWidthForefoot: 8.3,
+          toeBoxWidth: 8.9,
+          archLength: 19.1,
+          heelToToeDiagonal: 28.7,
+          gender: 'Men', // Add gender to hard-coded data
+        ),
+      ];
 
-    // Insert hard-coded data with category
-    await db.insert('measurements', {
-      'name': 'Nike Dunk Low Retro',
-      'category': 'Casual',
-      'shoe_size': 8.5,
-      'foot_length': 28.0,
-      'arch_length': 18.0,
-      'foot_width_heel': 7.0,
-      'heel_to_toe_diagonal': 27.5,
-      'toe_box_width': 10.0,
-      'foot_width_forefoot': 9.0
-    });
-
-    await db.insert('measurements', {
-      'name': 'Nike Air Force 1',
-      'category': 'Casual',
-      'shoe_size': 8.5,
-      'foot_length': 28.2,
-      'arch_length': 20.3,
-      'foot_width_heel': 7.7,
-      'heel_to_toe_diagonal': 28.6,
-      'toe_box_width': 10.1,
-      'foot_width_forefoot': 8.9
-    });
-
-    await db.insert('measurements', {
-      'name': 'Nike Air Jordan 1',
-      'category': 'Sports',
-      'shoe_size': 8.5,
-      'foot_length': 27.0,
-      'arch_length': 15.5,
-      'foot_width_heel': 6.4,
-      'heel_to_toe_diagonal': 26.7,
-      'toe_box_width': 9.5,
-      'foot_width_forefoot': 8.5
-    });
-
-    await db.insert('measurements', {
-      'name': 'Nike Flyknit Air Max Multi-Color',
-      'category': 'Running',
-      'shoe_size': 8.5,
-      'foot_length': 26.7,
-      'arch_length': 17.8,
-      'foot_width_heel': 8.9,
-      'heel_to_toe_diagonal': 25.4,
-      'toe_box_width': 7.6,
-      'foot_width_forefoot': 8.6
-    });
-
-    await db.insert('measurements', {
-      'name': 'Nike React Infinity Run Flyknit',
-      'category': 'Running',
-      'shoe_size': 9.0,
-      'foot_length': 27.9,
-      'arch_length': 19.1,
-      'foot_width_heel': 5.7,
-      'heel_to_toe_diagonal': 28.7,
-      'toe_box_width': 8.9,
-      'foot_width_forefoot': 8.3
-    });
+      // Add hard-coded data to the box
+      for (var measurement in hardCodedData) {
+        await _measurementBox.add(measurement);
+      }
+    }
   }
 
-  Future<int> insertMeasurement(Map<String, dynamic> row) async {
-    final db = await instance.database;
-    return await db.insert('measurements', row);
+  // Insert a new measurement (if needed for additional data entry)
+  Future<void> insertMeasurement(Measurement measurement) async {
+    await _measurementBox.add(measurement);
   }
 
-  Future<List<Map<String, dynamic>>> fetchAllMeasurements() async {
-    final db = await instance.database;
-    return await db.query('measurements');
+  // Retrieve all measurements
+  List<Measurement> fetchAllMeasurements() {
+    return _measurementBox.values.toList();
   }
 
-  Future<int> updateMeasurement(Map<String, dynamic> row) async {
-    final db = await instance.database;
-    final id = row['id'] as int;
-    return await db.update(
-      'measurements',
-      row,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+  // Save a searched shoe to the searched_shoes box
+  Future<void> saveSearchedShoe(Measurement shoe) async {
+    debugPrint('Saving shoe: ${shoe.shoeName}');
+    await _searchBox.add(shoe.copy());
   }
 
-  Future<int> deleteMeasurement(int id) async {
-    final db = await instance.database;
-    return await db.delete(
-      'measurements',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+  // Fetch all searched shoes
+
+  List<Measurement> fetchAllSearchedShoes() {
+    debugPrint('Fetching all searched shoes. Total: ${_searchBox.length}');
+    return _searchBox.values.toList();
   }
 
-  Future close() async {
-    final db = await instance.database;
-    db.close();
+  // Delete a searched shoe by key
+  Future<void> deleteSearchedShoe(int key) async {
+    await _searchBox.delete(key);
+  }
+
+  Future<void> clearPreviousSearches() async {
+    await _searchBox.clear();
+  }
+
+  // Search for a matching shoe
+  Measurement? searchMeasurement({
+    required String category,
+    required double shoeSize,
+    required double footLength,
+    required double footWidthHeel,
+    required double footWidthForefoot,
+    required String gender,
+  }) {
+    debugPrint('Searching for:');
+    debugPrint('Category: $category, Gender: $gender');
+    debugPrint('Shoe Size: $shoeSize, Foot Length: $footLength');
+    debugPrint(
+        'Heel Width: $footWidthHeel, Forefoot Width: $footWidthForefoot');
+
+    final measurements = fetchAllMeasurements();
+    Measurement? closestMatch;
+    double smallestDifference = double.infinity;
+
+    for (var measurement in measurements) {
+      if (measurement.category == category && measurement.gender == gender) {
+        double difference = (measurement.shoeSize - shoeSize).abs() +
+            (measurement.footLength - footLength).abs() +
+            (measurement.footWidthHeel - footWidthHeel).abs() +
+            (measurement.footWidthForefoot - footWidthForefoot).abs();
+
+        if (difference < smallestDifference) {
+          smallestDifference = difference;
+          closestMatch = measurement;
+        }
+      }
+    }
+
+    debugPrint('Closest match found: ${closestMatch?.shoeName}');
+    return closestMatch;
+  }
+
+  Future<void> deleteMeasurement(int key) async {
+    await _measurementBox.delete(key);
+  }
+
+  // Close the database box
+  Future<void> close() async {
+    await _measurementBox.close();
   }
 }

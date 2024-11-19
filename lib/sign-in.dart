@@ -41,6 +41,7 @@ class _SignInState extends State<SignInScreen> {
       setState(() {
         errorMessage = e.message;
       });
+      debugPrint('Error code: ${e.code}, Message: ${e.message}');
     }
   }
 
@@ -159,8 +160,12 @@ class _SignInState extends State<SignInScreen> {
                 scrollDirection: Axis.vertical,
               ),
               items: [
-                'images/Foot Measurement Diagram.jpg',
-                'images/foot measuring.jpg',
+                'images/nike sign-in 1.jpg',
+                'images/nike sign-in 2.jpg',
+                'images/nike sign-in 3.jpg',
+                'images/nike sign-in 4.jpg',
+                'images/nike sign-in 5.jpg',
+                'images/nike sign-in 6.jpg',
               ].map((imagePath) {
                 return Builder(
                   builder: (BuildContext context) {
