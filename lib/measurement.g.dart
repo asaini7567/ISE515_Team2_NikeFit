@@ -26,14 +26,15 @@ class MeasurementAdapter extends TypeAdapter<Measurement> {
       toeBoxWidth: fields[6] as double?,
       archLength: fields[7] as double?,
       heelToToeDiagonal: fields[8] as double?,
-      gender: fields[9] as String,
+      imageUrl: fields[9] as String,
+      link: fields[10] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Measurement obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.shoeName)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class MeasurementAdapter extends TypeAdapter<Measurement> {
       ..writeByte(8)
       ..write(obj.heelToToeDiagonal)
       ..writeByte(9)
-      ..write(obj.gender);
+      ..write(obj.imageUrl)
+      ..writeByte(10)
+      ..write(obj.link);
   }
 
   @override

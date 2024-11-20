@@ -36,7 +36,6 @@ class ShoeCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text('Category: ${shoe.category}'),
             Text('Size: ${shoe.shoeSize}'),
-            Text('Gender: ${shoe.gender}'),
             Text('Foot Length: ${shoe.footLength} cm'),
             Text('Heel Width: ${shoe.footWidthHeel} cm'),
             Text('Forefoot Width: ${shoe.footWidthForefoot} cm'),

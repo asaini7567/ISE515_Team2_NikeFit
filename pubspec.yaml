@@ -44,6 +44,7 @@ dependencies:
   hive_generator: ^1.1.0
   build_runner: ^2.3.0
   carousel_slider: ^5.0.0
+  url_launcher: ^6.1.7
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +79,17 @@ flutter:
     - images/nike sign-in 4.jpg
     - images/nike sign-in 5.jpg
     - images/nike sign-in 6.jpg
+    - images/nike dunk low retro.jpg
+    - images/nike air force 1.jpg
+    - images/nike air jordan 1.jpg
+    - images/nike flyknit air max multi-color.jpg
+    - images/nike react infinity run flyknit.jpg
+    - images/nike rival waffle 6.jpg
+    - images/nike sfb field 8 leather.jpg
+  fonts:
+    - family: CustomFont
+      fonts:
+        - asset: fonts/Athletic.TTF
 
   # To add assets to your application, add an assets section, like this:
   # assets:

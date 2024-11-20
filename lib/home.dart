@@ -45,6 +45,8 @@ class _HomeScreenState extends State<HomeScreen> {
     await Auth().signOut();
   }
 
+  String genderSelected = '';
+
   // Function to search shoe based on user input
   Future<void> _searchShoe() async {
     // Check for empty required fields
@@ -125,7 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text(
           'Dashboard',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+              color: Colors.white, fontFamily: 'CustomFont', fontSize: 32),
         ),
         backgroundColor: Colors.blue,
         centerTitle: true,
@@ -196,8 +199,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Image.asset(
-                      'images/Foot Measurement Diagram.jpg', // Replace with your image path
-                      fit: BoxFit.cover,
+                      'images/Foot Measurement Diagram.jpg',
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),
@@ -274,39 +277,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(
                                 width:
                                     10), // Space between text field and toggle button
-                            Expanded(
-                              flex: 1,
-                              child: ToggleButtons(
-                                fillColor: Colors.white,
-                                selectedColor: Colors.blue,
-                                borderRadius: BorderRadius.circular(10),
-                                isSelected: _isSelected,
-                                onPressed: (int index) {
-                                  setState(() {
-                                    // Toggle selection
-                                    for (int i = 0;
-                                        i < _isSelected.length;
-                                        i++) {
-                                      _isSelected[i] = i == index;
-                                    }
-                                    // Set gender based on selection
-                                    _gender = _isSelected[0] ? "Men" : "Women";
-                                  });
-                                },
-                                children: const <Widget>[
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    child: Text("Men"),
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    child: Text("Women"),
-                                  ),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 20),

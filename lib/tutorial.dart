@@ -10,7 +10,8 @@ class TutorialScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'Foot Measurement Tutorial',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+              color: Colors.white, fontFamily: 'CustomFont', fontSize: 32),
         ),
         backgroundColor: Colors.blue, // Set the AppBar color to blue
         iconTheme: const IconThemeData(

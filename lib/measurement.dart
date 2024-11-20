@@ -32,7 +32,10 @@ class Measurement extends HiveObject {
   double? heelToToeDiagonal;
 
   @HiveField(9)
-  String gender; // Add the gender field here
+  final String imageUrl;
+
+  @HiveField(10)
+  final String link;
 
   Measurement({
     required this.shoeName,
@@ -44,7 +47,8 @@ class Measurement extends HiveObject {
     this.toeBoxWidth,
     this.archLength,
     this.heelToToeDiagonal,
-    required this.gender, // Include gender in the constructor
+    required this.imageUrl,
+    required this.link,
   });
 
   // Copy method to create a new instance with the same values
@@ -59,7 +63,8 @@ class Measurement extends HiveObject {
       toeBoxWidth: toeBoxWidth,
       archLength: archLength,
       heelToToeDiagonal: heelToToeDiagonal,
-      gender: gender,
+      imageUrl: imageUrl,
+      link: link,
     );
   }
 }

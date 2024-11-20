@@ -35,7 +35,9 @@ class DatabaseHelper {
           toeBoxWidth: 10,
           archLength: 18,
           heelToToeDiagonal: 27.5,
-          gender: 'Men', // Add gender to hard-coded data
+          imageUrl: 'images/nike dunk low retro.jpg',
+          link:
+              'https://www.nike.com/t/dunk-low-retro-mens-shoes-5FQWGR/DD1391-103?nikemt=true&cp=28191740926_search_--x-21419615984---c-13382500-00195238789091&dplnk=member&gad_source=1&gbraid=0AAAAADy86kMcx1_qOmhB01gXaZIK-N2qP&gclid=Cj0KCQiAouG5BhDBARIsAOc08RRRxxMJeckQMr-IXDiBQOwCelqWPOtRZZwg9pYD75HXQk4lqFDLcwQaAua7EALw_wcB&gclsrc=aw.ds',
         ),
         Measurement(
           shoeName: 'Nike Air Force 1',
@@ -47,7 +49,9 @@ class DatabaseHelper {
           toeBoxWidth: 10.1,
           archLength: 20.3,
           heelToToeDiagonal: 28.6,
-          gender: 'Women', // Add gender to hard-coded data
+          imageUrl: 'images/nike air force 1.jpg',
+          link:
+              'https://www.nike.com/t/air-force-1-07-mens-shoes-jBrhbr/CW2288-111',
         ),
         Measurement(
           shoeName: 'Nike Air Jordan 1',
@@ -59,7 +63,9 @@ class DatabaseHelper {
           toeBoxWidth: 9.5,
           archLength: 15.5,
           heelToToeDiagonal: 26.7,
-          gender: 'Men', // Add gender to hard-coded data
+          imageUrl: 'images/nike air jordan 1.jpg',
+          link:
+              'https://www.nike.com/t/air-jordan-1-mid-se-mens-shoes-Zn07hL/HV0789-010',
         ),
         Measurement(
           shoeName: 'Nike Flyknit Air Max Multi-Color',
@@ -71,7 +77,8 @@ class DatabaseHelper {
           toeBoxWidth: 7.6,
           archLength: 17.8,
           heelToToeDiagonal: 25.4,
-          gender: 'Women', // Add gender to hard-coded data
+          imageUrl: 'images/nike flyknit air max multi-color.jpg',
+          link: 'https://stockx.com/nike-flyknit-air-max-multi-color',
         ),
         Measurement(
           shoeName: 'Nike React Infinity Run Flyknit',
@@ -83,7 +90,51 @@ class DatabaseHelper {
           toeBoxWidth: 8.9,
           archLength: 19.1,
           heelToToeDiagonal: 28.7,
-          gender: 'Men', // Add gender to hard-coded data
+          imageUrl: 'images/nike react infinity run flyknit.jpg',
+          link:
+              'https://www.nike.com/t/react-infinity-run-flyknit-3-mens-road-running-shoes-X4PKW0/FJ3994-100',
+        ),
+        Measurement(
+          shoeName: 'Nike Rival Waffle 6',
+          category: 'Running',
+          shoeSize: 10.5,
+          footLength: 28,
+          footWidthHeel: 7,
+          footWidthForefoot: 9,
+          toeBoxWidth: 10,
+          archLength: 16,
+          heelToToeDiagonal: 28.5,
+          imageUrl: 'images/nike rival waffle 6.jpg',
+          link:
+              'https://www.nike.com/t/rival-waffle-6-road-and-cross-country-racing-shoes-txWgQr/DX7998-701',
+        ),
+        Measurement(
+          shoeName: 'Nike SFB Field 8" Leather Mens',
+          category: 'Casual',
+          shoeSize: 10,
+          footLength: 29,
+          footWidthHeel: 9,
+          footWidthForefoot: 10,
+          toeBoxWidth: 11,
+          archLength: 18,
+          heelToToeDiagonal: 30,
+          imageUrl: 'images/nike sfb field 8 leather.jpg',
+          link:
+              'https://www.nike.com/t/sfb-field-2-8-leather-tactical-boots-HdQlt9',
+        ),
+        Measurement(
+          shoeName: 'Nike Rival Waffle 6',
+          category: 'Running',
+          shoeSize: 6.5,
+          footLength: 26,
+          footWidthHeel: 6,
+          footWidthForefoot: 8,
+          toeBoxWidth: 9,
+          archLength: 14,
+          heelToToeDiagonal: 27,
+          imageUrl: 'images/nike rival waffle 6.jpg',
+          link:
+              'https://www.nike.com/t/rival-waffle-6-road-and-cross-country-racing-shoes-txWgQr/DX7998-701',
         ),
       ];
 
@@ -146,7 +197,7 @@ class DatabaseHelper {
     double smallestDifference = double.infinity;
 
     for (var measurement in measurements) {
-      if (measurement.category == category && measurement.gender == gender) {
+      if (measurement.category == category) {
         double difference = (measurement.shoeSize - shoeSize).abs() +
             (measurement.footLength - footLength).abs() +
             (measurement.footWidthHeel - footWidthHeel).abs() +

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'measurement.dart';
+import 'home.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PreviousSearchesPage extends StatefulWidget {
   @override
@@ -31,74 +33,76 @@ class _PreviousSearchesPageState extends State<PreviousSearchesPage> {
     _loadPreviousSearches(); // Reload the list after deletion
   }
 
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Previous Searches'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: _previousSearches.length,
-          itemBuilder: (context, index) {
-            final measurement = _previousSearches[index];
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${measurement.shoeName}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text('Category: ${measurement.category}'),
-                          Text('Gender: ${measurement.gender}'),
-                          Text('Shoe Size: ${measurement.shoeSize} cm'),
-                          Text('Foot Length: ${measurement.footLength} cm'),
-                          Text(
-                              'Foot Width Heel: ${measurement.footWidthHeel} cm'),
-                          Text(
-                              'Foot Width Forefoot: ${measurement.footWidthForefoot} cm'),
-                          if (measurement.toeBoxWidth !=
-                              null) // Optional display
-                            Text(
-                                'Toe Box Width: ${measurement.toeBoxWidth} cm'),
-                          if (measurement.archLength !=
-                              null) // Optional display
-                            Text('Arch Length: ${measurement.archLength} cm'),
-                          if (measurement.heelToToeDiagonal !=
-                              null) // Optional display
-                            Text(
-                                'Heel-to-Toe Diagonal: ${measurement.heelToToeDiagonal} cm'),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    ElevatedButton(
-                      onPressed: () => _deleteSearch(index),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                      ),
-                      child: Text(
-                        'Delete',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+        appBar: AppBar(
+          title: const Text(
+            'Previous Searches',
+            style: TextStyle(
+                color: Colors.white, fontFamily: 'CustomFont', fontSize: 32),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.blue,
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
-      ),
-    );
+        backgroundColor: Colors.white,
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: ListView.builder(
+            itemCount: _previousSearches.length,
+            itemBuilder: (context, index) {
+              final measurement = _previousSearches[index];
+              return Card(
+                color: Colors.white,
+                margin:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                child: ListTile(
+                  title: GestureDetector(
+                    onTap: () => _launchURL(measurement.link),
+                    child: Text(
+                      measurement.shoeName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Category: ${measurement.category}'),
+                      Text('Shoe Size: ${measurement.shoeSize}'),
+                      Text('Foot Length: ${measurement.footLength} cm'),
+                      Text('Heel Width: ${measurement.footWidthHeel} cm'),
+                      Text(
+                          'Forefoot Width: ${measurement.footWidthForefoot} cm'),
+                      if (measurement.toeBoxWidth != null)
+                        Text('Toe Box Width: ${measurement.toeBoxWidth} cm'),
+                      if (measurement.archLength != null)
+                        Text('Arch Length: ${measurement.archLength} cm'),
+                      if (measurement.heelToToeDiagonal != null)
+                        Text(
+                            'Heel-to-Toe Diagonal: ${measurement.heelToToeDiagonal} cm'),
+                    ],
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () => _deleteSearch(measurement.key),
+                  ),
+                ),
+              );
+            },
+          ),
+        ));
   }
 }
