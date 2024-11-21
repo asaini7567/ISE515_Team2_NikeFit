@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'measurement.dart';
-import 'home.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PreviousSearchesPage extends StatefulWidget {
+  const PreviousSearchesPage({Key? key}) : super(key: key);
   @override
   _PreviousSearchesPageState createState() => _PreviousSearchesPageState();
 }
@@ -26,11 +26,21 @@ class _PreviousSearchesPageState extends State<PreviousSearchesPage> {
     });
   }
 
-  // Delete a specific search entry directly from the Hive box
-  Future<void> _deleteSearch(int index) async {
-    final box = await Hive.openBox<Measurement>('previous_searches');
-    await box.deleteAt(index);
-    _loadPreviousSearches(); // Reload the list after deletion
+  void saveSearch(Measurement measurement) {
+    final box = Hive.box<Measurement>('searchedShoes');
+    //box.add(measurement);
+    setState(() {
+      _previousSearches = box.values.toList(); // Update the local list
+    });
+  }
+
+  // Delete a search from Hive
+  void deleteSearch(int index) {
+    final box = Hive.box<Measurement>('searchedShoes');
+    setState(() {
+      box.deleteAt(index); // Remove from Hive
+      _previousSearches.removeAt(index); // Update the local list
+    });
   }
 
   Future<void> _launchURL(String url) async {
@@ -97,7 +107,7 @@ class _PreviousSearchesPageState extends State<PreviousSearchesPage> {
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _deleteSearch(measurement.key),
+                    onPressed: () => deleteSearch(measurement.key),
                   ),
                 ),
               );
