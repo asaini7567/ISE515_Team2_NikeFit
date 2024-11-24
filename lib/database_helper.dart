@@ -184,34 +184,98 @@ class DatabaseHelper {
     required double footLength,
     required double footWidthHeel,
     required double footWidthForefoot,
-    required String gender,
+    double? toeBoxWidth,
+    double? archLength,
+    double? heelToToeDiagonal,
   }) {
-    debugPrint('Searching for:');
-    debugPrint('Category: $category, Gender: $gender');
-    debugPrint('Shoe Size: $shoeSize, Foot Length: $footLength');
-    debugPrint(
-        'Heel Width: $footWidthHeel, Forefoot Width: $footWidthForefoot');
+    // Validation for required inputs
+    if (shoeSize < 0.1 || shoeSize > 200) {
+      debugPrint('Error: Shoe size must be between 0.1 and 200.');
+      return null;
+    }
+    if (footLength < 0.1 || footLength > 200) {
+      debugPrint('Error: Foot length must be between 0.1 and 200.');
+      return null;
+    }
+    if (footWidthHeel < 0.1 || footWidthHeel > 200) {
+      debugPrint('Error: Foot width at the heel must be between 0.1 and 200.');
+      return null;
+    }
+    if (footWidthForefoot < 0.1 || footWidthForefoot > 200) {
+      debugPrint(
+          'Error: Foot width at the forefoot must be between 0.1 and 200.');
+      return null;
+    }
 
+    // Validation for optional inputs
+    if (toeBoxWidth != null && (toeBoxWidth < 0.1 || toeBoxWidth > 200)) {
+      debugPrint('Error: Toe box width must be between 0.1 and 200.');
+      return null;
+    }
+    if (archLength != null && (archLength < 0.1 || archLength > 200)) {
+      debugPrint('Error: Arch length must be between 0.1 and 200.');
+      return null;
+    }
+    if (heelToToeDiagonal != null &&
+        (heelToToeDiagonal < 0.1 || heelToToeDiagonal > 200)) {
+      debugPrint('Error: Heel-to-toe diagonal must be between 0.1 and 200.');
+      return null;
+    }
+
+    // Perform the search logic
     final measurements = fetchAllMeasurements();
-    Measurement? closestMatch;
+    Measurement? bestMatch;
     double smallestDifference = double.infinity;
 
     for (var measurement in measurements) {
       if (measurement.category == category) {
-        double difference = (measurement.shoeSize - shoeSize).abs() +
-            (measurement.footLength - footLength).abs() +
-            (measurement.footWidthHeel - footWidthHeel).abs() +
-            (measurement.footWidthForefoot - footWidthForefoot).abs();
+        final shoeSizeError =
+            (measurement.shoeSize - shoeSize).abs() / shoeSize;
+        final footLengthError =
+            (measurement.footLength - footLength).abs() / footLength;
+        final footWidthHeelError =
+            (measurement.footWidthHeel - footWidthHeel).abs() / footWidthHeel;
+        final footWidthForefootError =
+            (measurement.footWidthForefoot - footWidthForefoot).abs() /
+                footWidthForefoot;
 
-        if (difference < smallestDifference) {
-          smallestDifference = difference;
-          closestMatch = measurement;
+        final toeBoxWidthError =
+            toeBoxWidth != null && measurement.toeBoxWidth != null
+                ? (measurement.toeBoxWidth! - toeBoxWidth).abs() / toeBoxWidth
+                : 0.0;
+        final archLengthError =
+            archLength != null && measurement.archLength != null
+                ? (measurement.archLength! - archLength).abs() / archLength
+                : 0.0;
+        final heelToToeDiagonalError =
+            heelToToeDiagonal != null && measurement.heelToToeDiagonal != null
+                ? (measurement.heelToToeDiagonal! - heelToToeDiagonal).abs() /
+                    heelToToeDiagonal
+                : 0.0;
+
+        if (shoeSizeError <= 0.15 &&
+            footLengthError <= 0.15 &&
+            footWidthHeelError <= 0.15 &&
+            footWidthForefootError <= 0.15 &&
+            (toeBoxWidth == null || toeBoxWidthError <= 0.15) &&
+            (archLength == null || archLengthError <= 0.15) &&
+            (heelToToeDiagonal == null || heelToToeDiagonalError <= 0.15)) {
+          final totalDifference = shoeSizeError +
+              footLengthError +
+              footWidthHeelError +
+              footWidthForefootError +
+              toeBoxWidthError +
+              archLengthError +
+              heelToToeDiagonalError;
+
+          if (totalDifference < smallestDifference) {
+            smallestDifference = totalDifference;
+            bestMatch = measurement;
+          }
         }
       }
     }
-
-    debugPrint('Closest match found: ${closestMatch?.shoeName}');
-    return closestMatch;
+    return bestMatch;
   }
 
   Future<void> deleteMeasurement(int key) async {

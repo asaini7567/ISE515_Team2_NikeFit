@@ -1,118 +1,117 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'measurement.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PreviousSearchesPage extends StatefulWidget {
   const PreviousSearchesPage({Key? key}) : super(key: key);
+
   @override
-  _PreviousSearchesPageState createState() => _PreviousSearchesPageState();
+  State<PreviousSearchesPage> createState() => _PreviousSearchesPageState();
 }
 
 class _PreviousSearchesPageState extends State<PreviousSearchesPage> {
-  List<Measurement> _previousSearches = [];
+  late Box<Measurement> _searchedBox;
 
   @override
   void initState() {
     super.initState();
-    _loadPreviousSearches();
+    _searchedBox =
+        Hive.box<Measurement>('previous_searches'); // Initialize Hive box
   }
 
-  // Load previous searches directly from the Hive box
-  Future<void> _loadPreviousSearches() async {
-    final box = await Hive.openBox<Measurement>('previous_searches');
-    setState(() {
-      _previousSearches = box.values.toList();
-    });
-  }
-
-  void saveSearch(Measurement measurement) {
-    final box = Hive.box<Measurement>('searchedShoes');
-    //box.add(measurement);
-    setState(() {
-      _previousSearches = box.values.toList(); // Update the local list
-    });
-  }
-
-  // Delete a search from Hive
-  void deleteSearch(int index) {
-    final box = Hive.box<Measurement>('searchedShoes');
-    setState(() {
-      box.deleteAt(index); // Remove from Hive
-      _previousSearches.removeAt(index); // Update the local list
-    });
-  }
-
-  Future<void> _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Could not launch $url';
+  void _deleteShoe(int index) {
+    try {
+      setState(() {
+        _searchedBox.deleteAt(index); // Delete the item at the specified index
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Shoe deleted successfully')),
+      );
+    } catch (e) {
+      debugPrint('Error deleting shoe: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error deleting shoe')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'Previous Searches',
-            style: TextStyle(
-                color: Colors.white, fontFamily: 'CustomFont', fontSize: 32),
-          ),
-          centerTitle: true,
-          backgroundColor: Colors.blue,
-          iconTheme: const IconThemeData(color: Colors.white),
+      appBar: AppBar(
+        title: const Text(
+          'Previous Searches',
+          style: TextStyle(
+              color: Colors.white, fontFamily: 'CustomFont', fontSize: 32),
         ),
-        backgroundColor: Colors.white,
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView.builder(
-            itemCount: _previousSearches.length,
+        backgroundColor: Colors.blue,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      backgroundColor: Colors.white,
+      body: ValueListenableBuilder(
+        valueListenable: _searchedBox.listenable(),
+        builder: (context, Box<Measurement> box, _) {
+          if (box.isEmpty) {
+            return const Center(
+              child: Text('No previous searches found.'),
+            );
+          }
+
+          return ListView.builder(
+            itemCount: box.length,
             itemBuilder: (context, index) {
-              final measurement = _previousSearches[index];
+              final measurement = box.getAt(index) as Measurement;
+
               return Card(
-                color: Colors.white,
-                margin:
-                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                child: ListTile(
-                  title: GestureDetector(
-                    onTap: () => _launchURL(measurement.link),
-                    child: Text(
-                      measurement.shoeName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
-                      ),
-                    ),
-                  ),
-                  subtitle: Column(
+                margin: const EdgeInsets.all(10),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Category: ${measurement.category}'),
-                      Text('Shoe Size: ${measurement.shoeSize}'),
-                      Text('Foot Length: ${measurement.footLength} cm'),
-                      Text('Heel Width: ${measurement.footWidthHeel} cm'),
-                      Text(
-                          'Forefoot Width: ${measurement.footWidthForefoot} cm'),
-                      if (measurement.toeBoxWidth != null)
-                        Text('Toe Box Width: ${measurement.toeBoxWidth} cm'),
-                      if (measurement.archLength != null)
-                        Text('Arch Length: ${measurement.archLength} cm'),
-                      if (measurement.heelToToeDiagonal != null)
-                        Text(
-                            'Heel-to-Toe Diagonal: ${measurement.heelToToeDiagonal} cm'),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              measurement.shoeName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text('Category: ${measurement.category}'),
+                            Text('Shoe Size: ${measurement.shoeSize}'),
+                            Text('Foot Length: ${measurement.footLength} cm'),
+                            Text('Heel Width: ${measurement.footWidthHeel} cm'),
+                            Text(
+                                'Forefoot Width: ${measurement.footWidthForefoot} cm'),
+                            if (measurement.toeBoxWidth != null)
+                              Text(
+                                  'Toe Box Width: ${measurement.toeBoxWidth} cm'),
+                            if (measurement.archLength != null)
+                              Text('Arch Length: ${measurement.archLength} cm'),
+                            if (measurement.heelToToeDiagonal != null)
+                              Text(
+                                  'Heel-To-Toe Diagonal: ${measurement.heelToToeDiagonal} cm'),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _deleteShoe(index),
+                      ),
                     ],
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => deleteSearch(measurement.key),
                   ),
                 ),
               );
             },
-          ),
-        ));
+          );
+        },
+      ),
+    );
   }
 }

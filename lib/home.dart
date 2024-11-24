@@ -76,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen> {
       footLength: footLength,
       footWidthHeel: footWidthHeel,
       footWidthForefoot: footWidthForefoot,
-      gender: _gender,
     );
 
     if (matchingShoe != null) {
