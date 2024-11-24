@@ -53,58 +53,76 @@ class _PreviousSearchesPageState extends State<PreviousSearchesPage> {
       body: ValueListenableBuilder(
         valueListenable: _searchedBox.listenable(),
         builder: (context, Box<Measurement> box, _) {
-          if (box.isEmpty) {
+          final shoes = box.values.toList();
+
+          if (shoes.isEmpty) {
             return const Center(
               child: Text('No previous searches found.'),
             );
           }
 
           return ListView.builder(
-            itemCount: box.length,
+            itemCount: shoes.length,
             itemBuilder: (context, index) {
-              final measurement = box.getAt(index) as Measurement;
-
-              return Card(
-                margin: const EdgeInsets.all(10),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              measurement.shoeName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text('Category: ${measurement.category}'),
-                            Text('Shoe Size: ${measurement.shoeSize}'),
-                            Text('Foot Length: ${measurement.footLength} cm'),
-                            Text('Heel Width: ${measurement.footWidthHeel} cm'),
-                            Text(
-                                'Forefoot Width: ${measurement.footWidthForefoot} cm'),
-                            if (measurement.toeBoxWidth != null)
-                              Text(
-                                  'Toe Box Width: ${measurement.toeBoxWidth} cm'),
-                            if (measurement.archLength != null)
-                              Text('Arch Length: ${measurement.archLength} cm'),
-                            if (measurement.heelToToeDiagonal != null)
-                              Text(
-                                  'Heel-To-Toe Diagonal: ${measurement.heelToToeDiagonal} cm'),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteShoe(index),
+              final shoe = shoes[index];
+              return Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Set background color to white
+                    borderRadius:
+                        BorderRadius.circular(8.0), // Optional: Rounded corners
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3), // Optional shadow
+                        blurRadius: 5,
+                        spreadRadius: 1,
+                        offset: const Offset(0, 3), // Position of shadow
                       ),
                     ],
+                  ),
+                  child: ListTile(
+                    title: GestureDetector(
+                      onTap: () async {
+                        final Uri url = Uri.parse(shoe.link);
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        } else {
+                          throw 'Could not launch ${shoe.link}';
+                        }
+                      },
+                      child: Text(
+                        shoe.shoeName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Category: ${shoe.category}'),
+                        Text('Shoe Size: ${shoe.shoeSize}'),
+                        Text('Foot Length: ${shoe.footLength} cm'),
+                        Text('Heel Width: ${shoe.footWidthHeel} cm'),
+                        Text('Forefoot Width: ${shoe.footWidthForefoot} cm'),
+                        if (shoe.toeBoxWidth != null)
+                          Text('Toe Box Width: ${shoe.toeBoxWidth} cm'),
+                        if (shoe.archLength != null)
+                          Text('Arch Length: ${shoe.archLength} cm'),
+                        if (shoe.heelToToeDiagonal != null)
+                          Text(
+                              'Heel-To-Toe Diagonal: ${shoe.heelToToeDiagonal} cm'),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        box.deleteAt(index);
+                      },
+                    ),
                   ),
                 ),
               );

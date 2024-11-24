@@ -13,6 +13,7 @@ class TutorialScreen extends StatelessWidget {
           style: TextStyle(
               color: Colors.white, fontFamily: 'CustomFont', fontSize: 32),
         ),
+        centerTitle: true,
         backgroundColor: Colors.blue, // Set the AppBar color to blue
         iconTheme: const IconThemeData(
             color: Colors.white), // Set the arrow color to white
@@ -111,29 +112,6 @@ class TutorialScreen extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
-            ),
-          ),
-          // Bottom-centered button
-          Padding(
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, // Set the button color to blue
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              ),
-              child: const Text(
-                'Return to Home',
-                style: TextStyle(color: Colors.white),
               ),
             ),
           ),

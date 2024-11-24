@@ -49,42 +49,66 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Function to search shoe based on user input
   Future<void> _searchShoe() async {
-    // Check for empty required fields
+    // Helper function to validate input range
+    bool isValidRange(double? value) {
+      return value != null && value >= 0.1 && value <= 200;
+    }
+
+    // Parse and validate inputs
+    final shoeSize = double.tryParse(_shoeSizeController.text);
+    final footLength = double.tryParse(_footLengthController.text);
+    final footWidthHeel = double.tryParse(_footWidthHeelController.text);
+    final footWidthForefoot =
+        double.tryParse(_footWidthForefootController.text);
+    final toeBoxWidth = double.tryParse(_toeBoxWidthController.text);
+    final archLength = double.tryParse(_archLengthController.text);
+    final heelToToeDiagonal =
+        double.tryParse(_heelToToeDiagonalController.text);
+
     if (_selectedCategory.isEmpty ||
         _shoeSizeController.text.isEmpty ||
         _footLengthController.text.isEmpty ||
         _footWidthHeelController.text.isEmpty ||
         _footWidthForefootController.text.isEmpty) {
-      // Show error message if any required field is blank
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all required fields.')),
       );
-      return; // Exit the function without searching
+      return;
     }
 
-    // Proceed to search if all required fields are filled
-    final category = _selectedCategory;
-    final shoeSize = double.tryParse(_shoeSizeController.text) ?? 0.0;
-    final footLength = double.tryParse(_footLengthController.text) ?? 0.0;
-    final footWidthHeel = double.tryParse(_footWidthHeelController.text) ?? 0.0;
-    final footWidthForefoot =
-        double.tryParse(_footWidthForefootController.text) ?? 0.0;
+    // Validate ranges
+    if (!isValidRange(shoeSize) ||
+        !isValidRange(footLength) ||
+        !isValidRange(footWidthHeel) ||
+        !isValidRange(footWidthForefoot)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Input values must be between 0 and 200.')),
+      );
+      return;
+    }
 
-    final matchingShoe = DatabaseHelper.instance.searchMeasurement(
+    // Proceed with valid inputs
+    final category = _selectedCategory;
+
+    final matches = DatabaseHelper.instance.searchMeasurements(
       category: category,
-      shoeSize: shoeSize,
-      footLength: footLength,
-      footWidthHeel: footWidthHeel,
-      footWidthForefoot: footWidthForefoot,
+      shoeSize: shoeSize!,
+      footLength: footLength!,
+      footWidthHeel: footWidthHeel!,
+      footWidthForefoot: footWidthForefoot!,
+      toeBoxWidth: toeBoxWidth,
+      archLength: archLength,
+      heelToToeDiagonal: heelToToeDiagonal,
     );
 
-    if (matchingShoe != null) {
-      await DatabaseHelper.instance.saveSearchedShoe(matchingShoe);
+    if (matches.isNotEmpty) {
+      await DatabaseHelper.instance.saveSearchedShoe(matches.first);
 
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ShoeMatchScreen(matchingShoe: matchingShoe),
+          builder: (context) => ShoeMatchScreen(matches: matches),
         ),
       );
     } else {
